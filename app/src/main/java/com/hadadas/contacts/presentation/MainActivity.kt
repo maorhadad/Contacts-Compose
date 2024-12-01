@@ -51,10 +51,8 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun ContactsApp(viewModel: ContactsViewModel) {
         val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
-
         val contacts by viewModel.filteredContacts.collectAsState()
         var showPermissionRationale by remember { mutableStateOf(false) }
-        Log.d("ContactsApp", "searchQuery: $searchQuery")
         if (showPermissionRationale) {
             PermissionRationaleDialog(
                 onDismiss = { showPermissionRationale = false },
