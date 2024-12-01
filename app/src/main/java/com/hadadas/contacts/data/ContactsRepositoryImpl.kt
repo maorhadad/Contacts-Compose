@@ -21,8 +21,7 @@ class ContactsRepositoryImpl(private val contentResolver: ContentResolver) : Con
             null,
             ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC"
         )
-
-
+        
         cursor?.use {
             while (it.moveToNext()) {
                 val name = it.getString(it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
@@ -30,7 +29,7 @@ class ContactsRepositoryImpl(private val contentResolver: ContentResolver) : Con
                 val photoUri = it.getString(it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Photo.PHOTO_URI))
                 val normalizedNumberNoCountryCode = phoneNumber.replaceCountryCode()
                 val normalizedNumber = PhoneNumberUtils.normalizeNumber(normalizedNumberNoCountryCode)
-                if (phoneNumbersSet.add(normalizedNumber)) {
+                if (!name.isNullOrEmpty() && phoneNumbersSet.add(normalizedNumber)) {
                     contacts.add(Contact(name, normalizedNumber, photoUri))
                 }
             }
