@@ -4,7 +4,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.hadadas.contacts.R
 
@@ -14,7 +13,6 @@ fun PermissionRationaleDialog(
     onDismiss: () -> Unit,
     onSettingsRedirect: () -> Unit
 ) {
-    val context = LocalContext.current
 
     AlertDialog(
         onDismissRequest = onDismiss,

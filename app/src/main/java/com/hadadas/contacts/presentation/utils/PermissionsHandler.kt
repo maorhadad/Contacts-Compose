@@ -1,6 +1,7 @@
-package com.hadadas.contacts.presentation
+package com.hadadas.contacts.presentation.utils
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -20,18 +21,12 @@ fun PermissionsHandler(
     onPermissionDenied: () -> Unit
 ) {
     val context = LocalContext.current
-
-    // State to track whether the permission is granted
     var hasPermission by remember {
         mutableStateOf(
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.READ_CONTACTS
-            ) == PackageManager.PERMISSION_GRANTED
+            checkContactPermission(context)
         )
     }
 
-    // Permission launcher
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -43,7 +38,6 @@ fun PermissionsHandler(
         }
     }
 
-    // Check permission and request if necessary
     LaunchedEffect(Unit) {
         if (hasPermission) {
             onPermissionGranted()
@@ -51,4 +45,11 @@ fun PermissionsHandler(
             permissionLauncher.launch(Manifest.permission.READ_CONTACTS)
         }
     }
+}
+
+fun checkContactPermission(context: Context): Boolean {
+    return ContextCompat.checkSelfPermission(
+        context,
+        Manifest.permission.READ_CONTACTS
+    ) == PackageManager.PERMISSION_GRANTED
 }

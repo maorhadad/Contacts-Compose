@@ -2,14 +2,14 @@ package com.hadadas.contacts.presentation
 
 import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -17,13 +17,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.core.content.ContextCompat
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.hadadas.contacts.R
 import com.hadadas.contacts.data.ContactsRepositoryImpl
+import com.hadadas.contacts.domain.Contact
 import com.hadadas.contacts.presentation.ui.screens.ContactsScreen
 import com.hadadas.contacts.presentation.ui.screens.PermissionRationaleDialog
 import com.hadadas.contacts.presentation.ui.theme.ContactsTheme
+import com.hadadas.contacts.presentation.utils.PermissionsHandler
+import com.hadadas.contacts.presentation.utils.checkContactPermission
 import com.hadadas.contacts.presentation.viewmodel.ContactsViewModel
 import com.hadadas.contacts.presentation.viewmodel.ContactsViewModelFactory
 
@@ -35,13 +40,22 @@ class MainActivity : ComponentActivity() {
         val contentResolver = contentResolver
         setContent {
             ContactsTheme {
-                Surface {
-                    ContactsApp(
-                        viewModel = viewModel(
-                            factory = ContactsViewModelFactory(
-                                ContactsRepositoryImpl(contentResolver)
-                            )
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    val viewModel: ContactsViewModel = viewModel(
+                        factory = ContactsViewModelFactory(
+                            ContactsRepositoryImpl(contentResolver)
                         )
+                    )
+                    val contacts by viewModel.filteredContacts.collectAsState()
+                    val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
+                    ContactsApp(
+                        contacts = contacts,
+                        searchQuery = searchQuery,
+                        fetchContacts = { viewModel.fetchContacts() },
+                        updateSearchQuery = { viewModel.updateSearchQuery(it) }
                     )
                 }
             }
@@ -49,9 +63,13 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun ContactsApp(viewModel: ContactsViewModel) {
-        val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
-        val contacts by viewModel.filteredContacts.collectAsState()
+    fun ContactsApp(
+        contacts: List<Contact> = emptyList(),
+        searchQuery: String = "",
+        fetchContacts: () -> Unit,
+        updateSearchQuery: (String) -> Unit
+    ) {
+
         var showPermissionRationale by remember { mutableStateOf(false) }
         if (showPermissionRationale) {
             PermissionRationaleDialog(
@@ -65,7 +83,7 @@ class MainActivity : ComponentActivity() {
             )
         } else {
             PermissionsHandler(
-                onPermissionGranted = { viewModel.fetchContacts() },
+                onPermissionGranted = { fetchContacts() },
                 onPermissionDenied = {
                     if (shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS)) {
                         showPermissionRationale = true
@@ -74,34 +92,42 @@ class MainActivity : ComponentActivity() {
             )
         }
 
-
         ContactsScreen(
             contacts = contacts,
             searchQuery = searchQuery,
-            onSearchQueryChanged = { viewModel.updateSearchQuery(it) },
+            onSearchQueryChanged = { updateSearchQuery(it) },
             onRefresh = {
-                if (checkContactPermission()) {
-                    viewModel.fetchContacts()
+                showToastMessage(getString(R.string.refreshing_contacts))
+                if (checkContactPermission(this)) {
+                    fetchContacts()
                 } else {
-                    showPermissionDeniedMessage()
+                    showToastMessage(getString(R.string.permission_denied_cannot_refresh_contacts))
                 }
             }
         )
     }
 
-
-    private fun checkContactPermission(): Boolean {
-        return ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.READ_CONTACTS
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-
-    private fun showPermissionDeniedMessage() {
-        Toast.makeText(this, "Permission denied. Cannot refresh contacts.", Toast.LENGTH_SHORT)
+    private fun showToastMessage(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT)
             .show()
     }
+
+    @Preview(showBackground = false)
+    @Composable
+    fun PreviewContactsApp() {
+        val sampleContacts = listOf(
+            Contact(name = "Alice Smith", phoneNumber = "123-456-7890"),
+            Contact(name = "Bob Johnson", phoneNumber = "234-567-8901")
+        )
+        ContactsApp(
+            contacts = sampleContacts,
+            searchQuery = "",
+            fetchContacts = {},
+            updateSearchQuery = {}
+        )
+    }
 }
+
 
 
 
