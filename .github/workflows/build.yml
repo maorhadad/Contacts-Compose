@@ -41,9 +41,9 @@ jobs:
       - name: Setup Environment Variables
         run: |
           echo "KEYSTORE_FILE_PATH=$(pwd)/keystore.jks" >> $GITHUB_ENV
-          echo "KEYSTORE_PASSWORD='${{ secrets.KEYSTORE_PASSWORD }}'" >> $GITHUB_ENV
-          echo "KEY_ALIAS='${{ secrets.KEY_ALIAS }}'" >> $GITHUB_ENV
-          echo "KEY_PASSWORD='${{ secrets.KEY_PASSWORD }}'" >> $GITHUB_ENV
+          echo "KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}" >> $GITHUB_ENV
+          echo "KEY_ALIAS=${{ secrets.KEY_ALIAS }}" >> $GITHUB_ENV
+          echo "KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> $GITHUB_ENV
           echo "VERSION_CODE=${{ github.run_number }}" >> $GITHUB_ENV
           echo "VERSION_NAME=1.0.${{ github.run_number }}" >> $GITHUB_ENV
       
