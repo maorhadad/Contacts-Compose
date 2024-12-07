@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.konan.properties.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -12,25 +14,55 @@ android {
         applicationId = "com.hadadas.contacts"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+
+        // Dynamically set versionCode and versionName from environment variables
+        versionCode = System.getenv("VERSION_CODE")?.toInt() ?: 1
+        versionName = System.getenv("VERSION_NAME") ?: "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        // Modify the existing debug signing configuration
+        getByName("debug") {
+            storeFile = file("${rootProject.rootDir}/debug.keystore.jks")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+
+        val releasePropertiesFile = file("${rootProject.rootDir}/release.properties")
+        val releaseProperties = Properties()
+
+        if (releasePropertiesFile.exists()) {
+            releaseProperties.load(releasePropertiesFile.inputStream())
+        }
+        // Release signing configuration
+        create("release") {
+            storeFile = file(System.getenv("KEYSTORE_FILE_PATH") ?: "${rootProject.rootDir}/release.keystore.jks")
+            storePassword = System.getenv("KEYSTORE_PASSWORD") ?: releaseProperties.getProperty("release_store_password", "release_password")
+            keyAlias = System.getenv("KEY_ALIAS") ?: releaseProperties.getProperty("release_key_alias", "release_key")
+            keyPassword = System.getenv("KEY_PASSWORD") ?: releaseProperties.getProperty("release_key_password", "release_password")
+        }
+    }
+
     buildTypes {
+        debug {
+            signingConfig = signingConfigs.getByName("debug")
+            applicationIdSuffix = ".debug" // Optional, to differentiate debug builds
+            versionNameSuffix = "-debug"  // Optional, to differentiate debug builds
+        }
+
         release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
+
     kotlinOptions {
         jvmTarget = "1.8"
     }
@@ -40,7 +72,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
