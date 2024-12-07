@@ -49,9 +49,9 @@ jobs:
 
       - name: Debug Environment Variables
         run: |
-          echo "KEYSTORE_PASSWORD: ${KEYSTORE_PASSWORD:0:17}****"
-          echo "KEY_ALIAS: ${KEY_ALIAS:0:6}****"
-          echo "KEY_PASSWORD: ${KEY_PASSWORD:0:17}****"
+          echo "KEYSTORE_PASSWORD: ${KEYSTORE_PASSWORD:0:21}****"
+          echo "KEY_ALIAS: ${KEY_ALIAS:0:7}****"
+          echo "KEY_PASSWORD: ${KEY_PASSWORD:0:19}****"
 
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
