@@ -1,9 +1,19 @@
+import com.android.build.gradle.internal.api.ApkVariantOutputImpl
 import org.jetbrains.kotlin.konan.properties.Properties
 
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+}
+
+val buildNumber = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 1
+
+val generateVersionName: () -> String = {
+    println("GITHUB_RUN_NUMBER: ${System.getenv("GITHUB_RUN_NUMBER")}")
+    val buildMajorVersion = 1
+    val buildMinorVersion = 0
+    "${buildMajorVersion}.${buildMinorVersion}.${buildNumber}"
 }
 
 android {
@@ -16,39 +26,30 @@ android {
         targetSdk = 35
 
         // Dynamically set versionCode and versionName from environment variables
-        versionCode = System.getenv("VERSION_CODE")?.toInt() ?: 1
-        versionName = System.getenv("VERSION_NAME") ?: "1.0.0"
-
+        versionCode = buildNumber
+        versionName = generateVersionName()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    signingConfigs {
-        // Modify the existing debug signing configuration
-        getByName("debug") {
-            storeFile = file("${rootProject.rootDir}/debug.keystore.jks")
-            storePassword = "android"
-            keyAlias = "androiddebugkey"
-            keyPassword = "android"
-        }
-
-        val releasePropertiesFile = file("${rootProject.rootDir}/release.properties")
-        val releaseProperties = Properties()
-
-        if (releasePropertiesFile.exists()) {
-            releaseProperties.load(releasePropertiesFile.inputStream())
-        }
-        // Release signing configuration
-        create("release") {
-            println("Key Alias: ${System.getenv("KEY_ALIAS")}")
-            println("Keystore Path: ${System.getenv("KEYSTORE_FILE_PATH")}")
-            println("Keystore Password: ${System.getenv("KEYSTORE_PASSWORD")}")
-            println("Key Password: ${System.getenv("KEY_PASSWORD")}")
-            storeFile = file(System.getenv("KEYSTORE_FILE_PATH") ?: "${rootProject.rootDir}/release.keystore.jks")
-            storePassword = System.getenv("KEYSTORE_PASSWORD") ?: releaseProperties.getProperty("release_store_password", "release_password")
-            keyAlias = System.getenv("KEY_ALIAS") ?: releaseProperties.getProperty("release_key_alias", "release_key")
-            keyPassword = System.getenv("KEY_PASSWORD") ?: releaseProperties.getProperty("release_key_password", "release_password")
+        applicationVariants.all { variant ->
+            variant.outputs.all { output ->
+                val result = if (output is ApkVariantOutputImpl) {
+                    val variantName = variant.name
+                    val versionName = variant.versionName ?: "1.0" // Default version name
+                    val baseName = "Contacts-$versionName"
+                    val newFileName = if (variantName.contains("release", true)) {
+                        "$baseName.apk"
+                    } else {
+                        "$baseName-debug.apk"
+                    }
+                    output.outputFileName = newFileName
+                    true
+                } else {
+                    false
+                }
+                result
+            }
         }
     }
+
 
     buildTypes {
         debug {
