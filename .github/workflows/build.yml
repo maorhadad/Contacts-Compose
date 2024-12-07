@@ -21,7 +21,7 @@ jobs:
 
       - name: Debug Decoded File
         run: |
-          echo "${{ secrets.KEYSTORE_FILE }}" | tr -d '\n' | base64 -d > keystore.jks
+          echo '"${{ secrets.KEYSTORE_FILE }}"' | tr -d '\n' | base64 -d > keystore.jks
           ls -l keystore.jks
           file keystore.jks
 
