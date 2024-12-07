@@ -1,4 +1,5 @@
 import com.android.build.gradle.internal.api.ApkVariantOutputImpl
+import org.jetbrains.kotlin.ir.types.IdSignatureValues.result
 import org.jetbrains.kotlin.konan.properties.Properties
 
 plugins {
@@ -29,27 +30,27 @@ android {
         versionCode = buildNumber
         versionName = generateVersionName()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        applicationVariants.all { variant ->
-            variant.outputs.all { output ->
-                val result = if (output is ApkVariantOutputImpl) {
-                    val variantName = variant.name
-                    val versionName = variant.versionName ?: "1.0" // Default version name
+        applicationVariants.all {
+            outputs.all { output ->
+                val result = if (output is com.android.build.gradle.internal.api.BaseVariantOutputImpl) {
+
+                    val versionName = generateVersionName() ?: "1.0" // Default version name
                     val baseName = "Contacts-$versionName"
-                    val newFileName = if (variantName.contains("release", true)) {
+                    val newFileName = if (output.name.contains("release", true)) {
                         "$baseName.apk"
                     } else {
                         "$baseName-debug.apk"
                     }
+
                     output.outputFileName = newFileName
                     true
-                } else {
+                }else {
                     false
                 }
                 result
             }
         }
     }
-
 
     buildTypes {
         debug {
