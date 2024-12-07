@@ -21,9 +21,13 @@ jobs:
 
       - name: Debug Decoded File
         run: |
-          echo "${{ secrets.KEYSTORE_FILE }}" | tr -d '\n' | base64 -d > app/keystore.jks
+          echo "${{ secrets.KEYSTORE_FILE }}" | tr -d '\n' | base64 -d > keystore.jks
           ls -l keystore.jks
           file keystore.jks
+
+      - name: Print File Tree
+        run: |
+          find . -type d -print -exec ls -l {} \;
 
       - name: Verify File Creation
         run: ls -l
