@@ -17,7 +17,7 @@ local.properties
 .idea/
 .gradle/
 
-
+release.keystore.jks
 
 # Gradle
 /build/
@@ -31,3 +31,5 @@ local.properties
 # Android
 /app/build/
 */build/
+release.properties
+/release.keystore.txt

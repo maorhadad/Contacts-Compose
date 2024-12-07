@@ -1,7 +1,20 @@
+import com.android.build.gradle.internal.api.ApkVariantOutputImpl
+import org.jetbrains.kotlin.ir.types.IdSignatureValues.result
+import org.jetbrains.kotlin.konan.properties.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+}
+
+val buildNumber = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 1
+
+val generateVersionName: () -> String = {
+    println("GITHUB_RUN_NUMBER: ${System.getenv("GITHUB_RUN_NUMBER")}")
+    val buildMajorVersion = 1
+    val buildMinorVersion = 0
+    "${buildMajorVersion}.${buildMinorVersion}.${buildNumber}"
 }
 
 android {
@@ -12,13 +25,40 @@ android {
         applicationId = "com.hadadas.contacts"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
 
+        // Dynamically set versionCode and versionName from environment variables
+        versionCode = buildNumber
+        versionName = generateVersionName()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        applicationVariants.all {
+            outputs.all { output ->
+                val result = if (output is com.android.build.gradle.internal.api.BaseVariantOutputImpl) {
+
+                    val versionName = generateVersionName() ?: "1.0" // Default version name
+                    val baseName = "Contacts-$versionName"
+                    val newFileName = if (output.name.contains("release", true)) {
+                        "$baseName.apk"
+                    } else {
+                        "$baseName-debug.apk"
+                    }
+
+                    output.outputFileName = newFileName
+                    true
+                }else {
+                    false
+                }
+                result
+            }
+        }
     }
 
     buildTypes {
+        debug {
+            signingConfig = signingConfigs.getByName("debug")
+            applicationIdSuffix = ".debug" // Optional, to differentiate debug builds
+            versionNameSuffix = "-debug"  // Optional, to differentiate debug builds
+        }
+
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -27,10 +67,7 @@ android {
             )
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
+
     kotlinOptions {
         jvmTarget = "1.8"
     }
@@ -40,7 +77,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
