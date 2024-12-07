@@ -1,7 +1,7 @@
 name: Android Build APK
 
 on:
-  pull_request:
+  push:
     branches: [ "main" ]
 
 jobs:
@@ -67,4 +67,40 @@ jobs:
           name: Contacts-signed-1.0.${{ github.run_number }}
           path: app/build/outputs/apk/release/
 
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Display structure of downloaded files
+        run: ls -R
 
+      - name: Download APK from build
+        uses: actions/download-artifact@v4.1.8
+        with:
+          name: Contacts-signed-1.0.${{ github.run_number }}
+          path: app/build/outputs/apk/release/
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          release_name: Release v1.0.${{ github.run_number }}
+          draft: false
+          prerelease: false
+
+      - name: Display structure of downloaded files
+        run: ls -R
+
+      - name: Upload Release APK
+        id: upload_release_asset
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./app/build/outputs/apk/release/Contacts-1.0.${{ github.run_number }}-signed.apk
+          asset_name: Contacts-1.0.${{ github.run_number }}-signed.apk
+          asset_content_type: application/zip
