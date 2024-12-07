@@ -39,6 +39,10 @@ android {
         }
         // Release signing configuration
         create("release") {
+            println("Key Alias: ${System.getenv("KEY_ALIAS")}")
+            println("Keystore Path: ${System.getenv("KEYSTORE_FILE_PATH")}")
+            println("Keystore Password: ${System.getenv("KEYSTORE_PASSWORD")}")
+            println("Key Password: ${System.getenv("KEY_PASSWORD")}")
             storeFile = file(System.getenv("KEYSTORE_FILE_PATH") ?: "${rootProject.rootDir}/release.keystore.jks")
             storePassword = System.getenv("KEYSTORE_PASSWORD") ?: releaseProperties.getProperty("release_store_password", "release_password")
             keyAlias = System.getenv("KEY_ALIAS") ?: releaseProperties.getProperty("release_key_alias", "release_key")
