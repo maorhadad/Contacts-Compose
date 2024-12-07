@@ -43,6 +43,26 @@ jobs:
       - name: Display structure of build files
         run: ls -R
 
+      - name: Delete temp unaligned
+        run: |
+          rm "app/build/outputs/apk/release/Contacts-1.0.${{ github.run_number }}.apk.unaligned"
+        continue-on-error: true
+
+      - name: Delete temp idsig
+        run:  |
+          rm  "app/build/outputs/apk/release/Contacts-1.0.${{ github.run_number }}-signed.apk.idsig"
+        continue-on-error: true
+
+      - name: Delete temp keys
+        run:  |
+          rm  "app/build/outputs/apk/release/signingKey.jks"
+        continue-on-error: true
+
+      - name: Delete temp
+        run:  |
+          rm "app/build/outputs/apk/release/Contacts-1.0.${{ github.run_number }}.apk"
+        continue-on-error: true
+
       - name: Use the Upload Artifact GitHub Action
         uses: actions/upload-artifact@v4.4.0
         with:
