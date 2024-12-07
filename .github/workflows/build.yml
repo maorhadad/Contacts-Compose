@@ -19,8 +19,20 @@ jobs:
           java-version: '17'
           distribution: 'zulu'
 
-      - name: Decode Keystore File
-        run: echo "${{ secrets.KEYSTORE_FILE }}" | base64 -d > keystore.jks
+      - name: Debug Decoded File
+        run: |
+          echo "${{ secrets.KEYSTORE_FILE }}" | tr -d '\n' | base64 -d > keystore.jks
+          ls -l keystore.jks
+          file keystore.jks
+
+      - name: Verify File Creation
+        run: ls -l
+
+      - name: Check File Type
+        run: file keystore.jks
+
+      - name: Check File Size
+        run: du -h keystore.jks
 
       - name: Setup Environment Variables
         run: |
