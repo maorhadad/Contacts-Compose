@@ -9,6 +9,8 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -41,7 +43,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             ContactsTheme {
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .statusBarsPadding()
+                        .navigationBarsPadding(),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val viewModel: ContactsViewModel = viewModel(
@@ -121,6 +126,108 @@ class MainActivity : ComponentActivity() {
         )
         ContactsApp(
             contacts = sampleContacts,
+            searchQuery = "",
+            fetchContacts = {},
+            updateSearchQuery = {}
+        )
+    }
+    // Generate sample contacts
+    fun generateSampleContacts(): List<Contact> {
+        return listOf(
+            Contact("Alice Johnson", "123-456-7890"),
+            Contact("Bob Smith", "234-567-8901"),
+            Contact("Charlie Brown", "345-678-9012"),
+            Contact("Diana Prince", "456-789-0123"),
+            Contact("Edward Norton", "567-890-1234"),
+            Contact("Fiona Carter", "678-901-2345"),
+            Contact("George Wilson", "789-012-3456"),
+            Contact("Helen White", "890-123-4567"),
+            Contact("Irene Foster", "901-234-5678"),
+            Contact("Jack Daniels", "123-345-6789"),
+            Contact("Karen Adams", "234-456-7890"),
+            Contact("Liam Taylor", "345-567-8901"),
+            Contact("Mona Stevens", "456-678-9012"),
+            Contact("Nathan Drake", "567-789-0123"),
+            Contact("Olivia Miller", "678-890-1234"),
+            Contact("Paul Harris", "789-901-2345"),
+            Contact("Quinn Johnson", "890-012-3456"),
+            Contact("Rachel Green", "901-123-4567"),
+            Contact("Sam Evans", "123-234-5678"),
+            Contact("Tina Brown", "234-345-6789")
+        )
+    }
+
+    @Preview(name = "MDPI", showBackground = false, device = "spec:width=480dp,height=800dp,dpi=160")
+    @Composable
+    fun PreviewContactsAppMDPI() {
+        ContactsApp(
+            contacts = generateSampleContacts(),
+            searchQuery = "",
+            fetchContacts = {},
+            updateSearchQuery = {}
+        )
+    }
+
+    @Preview(name = "HDPI", showBackground = false, device = "spec:width=480dp,height=800dp,dpi=240")
+    @Composable
+    fun PreviewContactsAppHDPI() {
+        ContactsApp(
+            contacts = generateSampleContacts(),
+            searchQuery = "",
+            fetchContacts = {},
+            updateSearchQuery = {}
+        )
+    }
+
+    @Preview(name = "XHDPI", showBackground = false, device = "spec:width=480dp,height=800dp,dpi=320")
+    @Composable
+    fun PreviewContactsAppXHDPI() {
+        ContactsApp(
+            contacts = generateSampleContacts(),
+            searchQuery = "",
+            fetchContacts = {},
+            updateSearchQuery = {}
+        )
+    }
+
+    @Preview(name = "XXHDPI", showBackground = false, device = "spec:width=480dp,height=800dp,dpi=480")
+    @Composable
+    fun PreviewContactsAppXXHDPI() {
+        ContactsApp(
+            contacts = generateSampleContacts(),
+            searchQuery = "",
+            fetchContacts = {},
+            updateSearchQuery = {}
+        )
+    }
+
+    @Preview(name = "16:9 Screen", showBackground = false, device = "spec:width=640dp,height=360dp")
+    @Composable
+    fun PreviewContactsApp16_9() {
+        ContactsApp(
+            contacts = generateSampleContacts(),
+            searchQuery = "",
+            fetchContacts = {},
+            updateSearchQuery = {}
+        )
+    }
+
+    @Preview(name = "7 Inch Tablet", showBackground = false, device = "spec:width=600dp,height=1024dp,dpi=240")
+    @Composable
+    fun PreviewContactsApp7InchTablet() {
+        ContactsApp(
+            contacts = generateSampleContacts(),
+            searchQuery = "",
+            fetchContacts = {},
+            updateSearchQuery = {}
+        )
+    }
+
+    @Preview(name = "10 Inch Tablet", showBackground = false, device = "spec:width=800dp,height=1280dp,dpi=240")
+    @Composable
+    fun PreviewContactsApp10InchTablet() {
+        ContactsApp(
+            contacts = generateSampleContacts(),
             searchQuery = "",
             fetchContacts = {},
             updateSearchQuery = {}
