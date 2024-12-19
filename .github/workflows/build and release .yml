@@ -71,7 +71,7 @@ jobs:
           prerelease: false
       - name: Rename AAB File
         run: |
-          mv steps.download_step.outputs.download-path/app-release.aab .steps.download_step.outputs.download-path/Contacts-signed-aab-1.0.${{ github.run_number }}.aab
+          mv ./downloaded-artifacts/app-release.aab ./downloaded-artifacts/Contacts-signed-aab-1.0.${{ github.run_number }}.aab
       - name: Display structure of downloaded files
         run: ls -R
 
@@ -82,6 +82,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: steps.download_step.outputs.download-path/Contacts-signed-aab-1.0.${{ github.run_number }}.aab
+          asset_path: ./downloaded-artifacts/Contacts-signed-aab-1.0.${{ github.run_number }}.aab
           asset_name: Contacts-signed-aab-1.0.${{ github.run_number }}.aab
           asset_content_type: application/octet-stream
