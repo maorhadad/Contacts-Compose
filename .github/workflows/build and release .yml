@@ -69,6 +69,8 @@ jobs:
           draft: false
           prerelease: false
 
+      - name: Display structure of downloaded files
+        run: ls -R
       - name: Upload Release AAB
         id: upload_release_asset
         uses: actions/upload-release-asset@v1.0.1
