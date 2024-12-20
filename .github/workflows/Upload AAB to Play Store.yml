@@ -1,0 +1,55 @@
+name: Upload AAB to Play Store
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'Release version to upload'
+        required: true
+        default: '1.0.0'
+
+jobs:
+  upload-to-play-store:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js (if required for Play Store tools)
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Get Artifact from Release
+        id: download_artifact
+        uses: actions/download-release-asset@v2
+        with:
+          owner: ${{ github.repository_owner }}
+          repo: ${{ github.event.repository.name }}
+          latest: true
+          asset_name: Contacts-signed-aab-${{ github.event.inputs.release_version }}.aab
+
+      - name: Verify Artifact File
+        run: |
+          if [ ! -f "Contacts-signed-aab-${{ github.event.inputs.release_version }}.aab" ]; then
+            echo "Artifact file not found!"
+            exit 1
+          fi
+
+      - name: Upload to Play Store
+        env:
+          PLAY_STORE_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          # Install Google Play CLI (or any required tool)
+          npm install -g @google/play-cli
+
+          # Upload AAB to Play Store
+          play-cli upload \
+            --service-account-key="${{ secrets.PLAY_STORE_SERVICE_ACCOUNT_JSON }}" \
+            --aab-path="Contacts-signed-aab-${{ github.event.inputs.release_version }}.aab" \
+            --track=production
+
+      - name: Cleanup
+        run: |
+          rm -f Contacts-signed-aab-${{ github.event.inputs.release_version }}.aab
